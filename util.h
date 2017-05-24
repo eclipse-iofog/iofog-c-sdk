@@ -99,6 +99,6 @@ size_t get_len(const char *p);
 /// \param dest pointer where read bytes should be stored
 void unpack_bytes_json(json_object *jobj, const char *key, char **dest);
 
-struct json_object* make_post_request(const char *url, const char *body_type, const char *body);
+int make_post_request(const char *url, const char *body_type, const char *body, json_object **res);
 
 #endif //C_SDK_UTIL_H

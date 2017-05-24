@@ -1,4 +1,5 @@
 #include "json.h"
+#include "iomessage.h"
 
 #ifndef C_SDK_HTTP_H
 #define C_SDK_HTTP_H
@@ -14,11 +15,12 @@ struct _ioFogHttpClient {
 
 typedef struct _ioFogHttpClient iofog_http_client;
 
-iofog_http_client *new_iofog_http_client(char *id, int ssl, char *host, int port);
+iofog_http_client *new_iofog_http_client(const char *id, int ssl, const char *host, int port);
 
 void free_iofog_http_client(iofog_http_client *client);
 
-struct json_object* getConfig();
+int _get_config(iofog_http_client *client, json_object **config);
 
+int _post_message(iofog_http_client *client, io_message *message, json_object **post_response);
 
 #endif //C_SDK_HTTP_H

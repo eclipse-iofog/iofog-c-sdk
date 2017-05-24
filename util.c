@@ -1,8 +1,8 @@
 #include "util.h"
 #include <memory.h>
 #include <math.h>
-#include "json.h"
-#include "curl.h"
+#include <json.h>
+#include <curl.h>
 
 int get_intBE(unsigned char *buf, int len) {
     int res = 0;
@@ -166,30 +166,29 @@ void unpack_bytes_json(json_object *jobj, const char *key, char **dest) {
 }
 
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
-    struct json_object *result = *((struct json_object **) userdata);
-    result = json_tokener_parse(ptr);
+    if (userdata != NULL) {
+        *((struct json_object **) userdata) = json_tokener_parse(ptr);
+    }
     return nmemb * size;
 }
 
-struct json_object* make_post_request(const char *url, const char *body_type, const char *body) {
-    struct json_object *result = NULL;
+int make_post_request(const char *url, const char *body_type, const char *body, json_object **result) {
     struct curl_slist *headers = NULL;
     CURL *curl = curl_easy_init();
+    CURLcode res = CURLE_FAILED_INIT;
     if (curl) {
-
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-
         char cnt_type_header[64];
         sprintf(cnt_type_header, "Content-Type: %s", body_type);
         headers = curl_slist_append(headers, cnt_type_header);
 
+        curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, get_len(body));
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &result);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, result);
 
-        CURLcode res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         }
@@ -199,5 +198,5 @@ struct json_object* make_post_request(const char *url, const char *body_type, co
         fprintf(stderr, "curl_easy_init() failed\n");
     }
 
-    return result;
+    return res;
 }

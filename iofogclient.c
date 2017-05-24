@@ -44,11 +44,20 @@ iofog_client *new_iofog_client() {
     client->id = selfname;
     client->ssl = ssl;
     client->port = PORT_IOFOG;
+    client->http_client = new_iofog_http_client(selfname, ssl, host, PORT_IOFOG);
 
     return client;
 }
 
 void free_iofog_client(iofog_client *client) {
+    free_iofog_http_client(client->http_client);
     free(client);
 }
 
+int get_config(iofog_client *client, json_object **config){
+    return _get_config(client->http_client, config);
+}
+
+int post_message(iofog_client *client, io_message *message, json_object **post_response) {
+    return _post_message(client->http_client, message, post_response);
+}

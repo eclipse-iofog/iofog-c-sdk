@@ -3,6 +3,7 @@
 
 extern const char *IOFOG;
 extern const char *ID;
+extern const char *CONFIG;
 
 extern const int PORT_IOFOG;
 extern const char *SELFNAME;

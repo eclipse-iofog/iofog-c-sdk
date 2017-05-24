@@ -2,6 +2,7 @@
 
 const char *IOFOG = "iofog";
 const char *ID = "id";
+const char *CONFIG = "config";
 
 const int PORT_IOFOG = 54321;
 const char *SELFNAME = "SELFNAME";
