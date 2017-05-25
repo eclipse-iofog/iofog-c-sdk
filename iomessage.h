@@ -79,6 +79,8 @@ io_message *io_message_from_json_string(char *str);
 /// \return number of bytes in @param buf
 int prepare_io_message_for_sending_via_socket(io_message *msg, unsigned char **buf);
 
+void encode_data_base64(io_message *msg);
+
 /// Method for unpacking message received via socket
 /// \param msg pointer to io_message pointer where result should be stored
 /// \param buf received bytes via socket

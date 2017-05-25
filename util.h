@@ -101,4 +101,8 @@ void unpack_bytes_json(json_object *jobj, const char *key, char **dest);
 
 int make_post_request(const char *url, const char *body_type, const char *body, json_object **res);
 
+char *base64_encode(const char *data, size_t input_length);
+
+char *base64_decode(const char *data, size_t input_length);
+
 #endif //C_SDK_UTIL_H

@@ -1,8 +1,11 @@
 #include "util.h"
 #include <memory.h>
 #include <math.h>
-#include <json.h>
 #include <curl.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
+#include <assert.h>
 
 int get_intBE(unsigned char *buf, int len) {
     int res = 0;
@@ -199,4 +202,60 @@ int make_post_request(const char *url, const char *body_type, const char *body, 
     }
 
     return res;
+}
+
+
+char *base64_encode(const char *data, size_t input_length) {
+
+    BIO *bio, *b64;
+    BUF_MEM *bufferPtr;
+
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_new(BIO_s_mem());
+    bio = BIO_push(b64, bio);
+
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Ignore newlines - write everything in one line
+    BIO_write(bio, data, (int) input_length);
+    BIO_flush(bio);
+    BIO_get_mem_ptr(bio, &bufferPtr);
+    BIO_set_close(bio, BIO_NOCLOSE);
+
+    char *encoded_data = malloc(bufferPtr->length + 1);
+    memcpy(encoded_data, bufferPtr->data, bufferPtr->length);
+    encoded_data[bufferPtr->length] = '\0';
+
+    BIO_free_all(bio);
+    return encoded_data;
+
+}
+
+
+char *base64_decode(const char *data, size_t input_length) {
+
+    BIO *bio, *b64;
+    size_t len = input_length;
+    size_t padding = 0;
+
+    if (data[len - 1] == '=') {
+        padding++;
+    }
+    if (data[len - 2] == '=') {
+        padding++;
+    }
+
+    size_t decoded_len = ((len * 3) / 4 - padding);
+    char *decoded_data = malloc(decoded_len + 1);
+    decoded_data[decoded_len] = '\0';
+
+    bio = BIO_new_mem_buf(data, -1);
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_push(b64, bio);
+
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
+    int length = BIO_read(bio, decoded_data, (int) get_len(data));
+    assert(length == decoded_len); //length should equal decoded_len, else something went horribly wrong
+    BIO_free_all(bio);
+
+
+    return decoded_data;
 }

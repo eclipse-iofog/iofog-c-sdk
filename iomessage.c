@@ -2,7 +2,7 @@
 #include <memory.h>
 #include "iomessage.h"
 #include "util.h"
-#include "json.h"
+#include <json.h>
 
 const int IO_MESSAGE_VERSION = 4;
 const int IO_MESSAGE_HEADER_SIZE = 33;
@@ -176,13 +176,25 @@ int io_message_to_json_string(io_message *msg, char **str) {
     json_object_object_add(jobj, DIFFICULTY_TARGET, json_object_new_int(msg->difficulty_target));
     json_object_object_add(jobj, INFO_TYPE, json_object_new_string(msg->info_type == NULL ? "" : msg->info_type));
     json_object_object_add(jobj, INFO_FORMAT, json_object_new_string(msg->info_format == NULL ? "" : msg->info_format));
-    json_object_object_add(jobj, CONTEXT_DATA,
-                           json_object_new_string(msg->context_data == NULL ? "" : msg->context_data));
-    json_object_object_add(jobj, CONTENT_DATA,
-                           json_object_new_string(msg->content_data == NULL ? "" : msg->content_data));
+    char *context_data_encoded = "";
+    char *content_data_encoded = "";
+    if (msg->context_data != NULL) {
+        context_data_encoded = base64_encode(msg->context_data, get_len(msg->context_data));
+    }
+    json_object_object_add(jobj, CONTEXT_DATA, json_object_new_string(context_data_encoded));
+    if (msg->content_data != NULL) {
+        content_data_encoded = base64_encode(msg->content_data, get_len(msg->content_data));
+    }
+    json_object_object_add(jobj, CONTENT_DATA, json_object_new_string(content_data_encoded));
 
 
-    const char *jsonStr = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_PLAIN);
+    if (msg->context_data != NULL) {
+        free(context_data_encoded);
+    }
+    if (msg->content_data != NULL) {
+        free(content_data_encoded);
+    }
+    const char *jsonStr = json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOSLASHESCAPE);
     size_t len = strlen(jsonStr);
     *str = malloc(len + 1);
     memcpy(*str, jsonStr, (size_t) len);
@@ -218,8 +230,23 @@ io_message *io_message_from_json_string(char *str) {
     unpack_bytes_json(jobj, INFO_FORMAT, &msg->info_format);
     unpack_bytes_json(jobj, CONTEXT_DATA, &msg->context_data);
     unpack_bytes_json(jobj, CONTENT_DATA, &msg->content_data);
+    json_object_put(jobj);
+
+
+    if (msg->context_data != NULL) {
+        char *context_data_decoded = NULL;
+        context_data_decoded = base64_decode(msg->context_data, get_len(msg->context_data));
+        free(msg->context_data);
+        msg->context_data = context_data_decoded;
+    }
+    if (msg->content_data != NULL) {
+        char *content_data_decoded = NULL;
+        content_data_decoded = base64_decode(msg->content_data, get_len(msg->content_data));
+        free(msg->content_data);
+        msg->content_data = content_data_decoded;
+    }
+
 
 
     return msg;
 }
-
