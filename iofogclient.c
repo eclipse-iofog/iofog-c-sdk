@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "iofogclient.h"
-#include "global.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -54,10 +53,50 @@ void free_iofog_client(iofog_client *client) {
     free(client);
 }
 
-int get_config(iofog_client *client, json_object **config){
+int get_config(iofog_client *client, json_object **config) {
     return _get_config(client->http_client, config);
 }
 
-int post_message(iofog_client *client, io_message *message, json_object **post_response) {
+int post_message(iofog_client *client, io_message *message, post_message_response *post_response) {
     return _post_message(client->http_client, message, post_response);
+}
+
+
+int get_next_messages(iofog_client *client, get_next_messages_response *get_response) {
+    return _get_next_messages(client->http_client, get_response);
+}
+
+int get_next_messages_with_query(iofog_client *client, get_messages_query *query,
+                                 get_messages_with_query_response *get_response) {
+    json_object *q = json_object_new_object();
+    json_object *pub = json_object_new_array();
+    for (int i = 0; i < query->publishers_count; ++i) {
+        json_object_array_add(pub, json_object_new_string(query->publishers[i]));
+    }
+    json_object_object_add(q, ID, json_object_new_string(client->id));
+    json_object_object_add(q, TIME_FRAME_START, json_object_new_int64((int64_t) query->time_frame_start));
+    json_object_object_add(q, TIME_FRAME_END, json_object_new_int64((int64_t) query->time_frame_end));
+    json_object_object_add(q, PUBLISHERS, pub);
+    int rc = _get_next_messages_with_query(client->http_client, q, get_response);
+    json_object_put(q);
+    json_object_put(pub);
+    return rc;
+}
+
+void free_post_message_response(post_message_response *post_response) {
+    free(post_response->id);
+}
+
+void free_get_next_messages_response(get_next_messages_response *get_response) {
+    for (int i = 0; i < get_response->count; ++i) {
+        free_io_message(get_response->messages[i]);
+    }
+    free(get_response->messages);
+}
+
+void free_get_next_messages_with_query_response(get_messages_with_query_response *get_response) {
+    for (int i = 0; i < get_response->count; ++i) {
+        free_io_message(get_response->messages[i]);
+    }
+    free(get_response->messages);
 }

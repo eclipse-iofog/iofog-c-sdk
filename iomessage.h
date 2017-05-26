@@ -60,7 +60,7 @@ int io_message_to_bytes(io_message *msg, unsigned char **buf);
 /// Method for decoding io_message from bytes according to specification
 /// \param bytes byte buffer where io_message is stored
 /// \return pointer to decoded io_message structure
-io_message *ioMessage_from_bytes(unsigned char *bytes);
+io_message *io_message_from_bytes(unsigned char *bytes);
 
 /// Method for encoding io_message @param msg into json string
 /// \param msg io_message that needed to be encoded
@@ -71,7 +71,7 @@ int io_message_to_json_string(io_message *msg, char **str);
 /// Method for decoding json string into io_message structure
 /// \param str json string with io_message
 /// \return pointer to decoded io_message structure
-io_message *io_message_from_json_string(char *str);
+io_message *io_message_from_json_string(const char *str);
 
 /// Method for preparing message package that can be sent via socket
 /// \param msg io_message to send

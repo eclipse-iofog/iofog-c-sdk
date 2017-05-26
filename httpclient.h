@@ -1,5 +1,6 @@
 #include "json.h"
 #include "iomessage.h"
+#include "global.h"
 
 #ifndef C_SDK_HTTP_H
 #define C_SDK_HTTP_H
@@ -21,6 +22,12 @@ void free_iofog_http_client(iofog_http_client *client);
 
 int _get_config(iofog_http_client *client, json_object **config);
 
-int _post_message(iofog_http_client *client, io_message *message, json_object **post_response);
+int _post_message(iofog_http_client *client, io_message *message, post_message_response *post_response);
+
+int _get_next_messages(iofog_http_client *client, get_next_messages_response *get_response);
+
+int _get_next_messages_with_query(iofog_http_client *client, json_object *query,
+                                  get_messages_with_query_response *get_response);
+
 
 #endif //C_SDK_HTTP_H

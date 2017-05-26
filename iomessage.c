@@ -67,7 +67,7 @@ int io_message_to_bytes(io_message *msg, unsigned char **buffer) {
     return (int) msg_len;
 }
 
-io_message *ioMessage_from_bytes(unsigned char *bytes) {
+io_message *io_message_from_bytes(unsigned char *bytes) {
 
     int version = get_intBE(bytes, 2);
     if (version != IO_MESSAGE_VERSION) {
@@ -151,7 +151,7 @@ int prepare_io_message_for_sending_via_socket(io_message *msg, unsigned char **b
 }
 
 void get_message_received_via_socket(io_message **msg, unsigned char *buf) {
-    *msg = ioMessage_from_bytes(buf + 5);
+    *msg = io_message_from_bytes(buf + 5);
 }
 
 int io_message_to_json_string(io_message *msg, char **str) {
@@ -205,7 +205,7 @@ int io_message_to_json_string(io_message *msg, char **str) {
     return (int) len;
 }
 
-io_message *io_message_from_json_string(char *str) {
+io_message *io_message_from_json_string(const char *str) {
 
     struct json_object *jobj = json_tokener_parse(str);
     io_message *msg = calloc(1, sizeof(io_message));
@@ -245,8 +245,6 @@ io_message *io_message_from_json_string(char *str) {
         free(msg->content_data);
         msg->content_data = content_data_decoded;
     }
-
-
 
     return msg;
 }

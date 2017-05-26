@@ -31,3 +31,8 @@ const unsigned char CODE_RECEIPT = 0xE;
 const int WS_ATTEMPT_LIMIT = 5;
 const int WS_CONNECT_TIMEOUT = 1; // todo second
 
+const char *TIME_FRAME_START = "timeframestart";
+const char *TIME_FRAME_END = "timeframeend";
+const char *COUNT = "count";
+const char *MESSAGES = "messages";
+const char *PUBLISHERS = "publishers";
