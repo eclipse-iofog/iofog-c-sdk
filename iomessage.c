@@ -29,7 +29,6 @@ const char *CONTENT_DATA = "contentdata";
 
 
 int io_message_to_bytes(io_message *msg, unsigned char **buffer) {
-
     if (msg->version != IO_MESSAGE_VERSION) {
         *buffer = NULL;
         return 0;
@@ -68,7 +67,6 @@ int io_message_to_bytes(io_message *msg, unsigned char **buffer) {
 }
 
 io_message *io_message_from_bytes(unsigned char *bytes) {
-
     int version = get_intBE(bytes, 2);
     if (version != IO_MESSAGE_VERSION) {
         return NULL;
@@ -155,8 +153,7 @@ void get_message_received_via_socket(io_message **msg, unsigned char *buf) {
 }
 
 int io_message_to_json_string(io_message *msg, char **str) {
-
-    struct json_object *jobj = json_object_new_object();
+    json_object *jobj = json_object_new_object();
     json_object_object_add(jobj, ID, json_object_new_string(msg->id == NULL ? "" : msg->id));
     json_object_object_add(jobj, TAG, json_object_new_string(msg->tag == NULL ? "" : msg->tag));
     json_object_object_add(jobj, GROUP_ID, json_object_new_string(msg->group_id == NULL ? "" : msg->group_id));
@@ -187,7 +184,6 @@ int io_message_to_json_string(io_message *msg, char **str) {
     }
     json_object_object_add(jobj, CONTENT_DATA, json_object_new_string(content_data_encoded));
 
-
     if (msg->context_data != NULL) {
         free(context_data_encoded);
     }
@@ -206,8 +202,7 @@ int io_message_to_json_string(io_message *msg, char **str) {
 }
 
 io_message *io_message_from_json_string(const char *str) {
-
-    struct json_object *jobj = json_tokener_parse(str);
+    json_object *jobj = json_tokener_parse(str);
     io_message *msg = calloc(1, sizeof(io_message));
 
     unpack_bytes_json(jobj, ID, &msg->id);
@@ -230,8 +225,8 @@ io_message *io_message_from_json_string(const char *str) {
     unpack_bytes_json(jobj, INFO_FORMAT, &msg->info_format);
     unpack_bytes_json(jobj, CONTEXT_DATA, &msg->context_data);
     unpack_bytes_json(jobj, CONTENT_DATA, &msg->content_data);
-    json_object_put(jobj);
 
+    json_object_put(jobj);
 
     if (msg->context_data != NULL) {
         char *context_data_decoded = NULL;

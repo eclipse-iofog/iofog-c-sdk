@@ -28,7 +28,7 @@ iofog_client *new_iofog_client() {
         int fd = open("/dev/null", O_WRONLY);
         dup2(fd, 2);  // redirect stderr
         close(fd);
-        exit(execl("/bin/ping", "-c", "3", host));
+        exit(execl("/bin/ping", "-c", "3", host, NULL));
     } else {
         wait(&ping_res);
         ping_res = WEXITSTATUS(ping_res);
@@ -57,15 +57,17 @@ int get_config(iofog_client *client, json_object **config) {
     return _get_config(client->http_client, config);
 }
 
+// do not forget to free post response
 int post_message(iofog_client *client, io_message *message, post_message_response *post_response) {
     return _post_message(client->http_client, message, post_response);
 }
 
-
+// do not forget to free get response
 int get_next_messages(iofog_client *client, get_next_messages_response *get_response) {
     return _get_next_messages(client->http_client, get_response);
 }
 
+// do not forget to free get response
 int get_next_messages_with_query(iofog_client *client, get_messages_query *query,
                                  get_messages_with_query_response *get_response) {
     json_object *q = json_object_new_object();

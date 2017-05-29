@@ -175,6 +175,7 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
     return nmemb * size;
 }
 
+// user is responsible for calling json_object_put on result
 int make_post_request(const char *url, const char *body_type, const char *body, json_object **result) {
     struct curl_slist *headers = NULL;
     CURL *curl = curl_easy_init();
@@ -223,10 +224,9 @@ char *base64_encode(const char *data, size_t input_length) {
     char *encoded_data = malloc(bufferPtr->length + 1);
     memcpy(encoded_data, bufferPtr->data, bufferPtr->length);
     encoded_data[bufferPtr->length] = '\0';
-
     BIO_free_all(bio);
-    return encoded_data;
 
+    return encoded_data;
 }
 
 
@@ -255,7 +255,6 @@ char *base64_decode(const char *data, size_t input_length) {
     int length = BIO_read(bio, decoded_data, (int) get_len(data));
     assert(length == decoded_len); //length should equal decoded_len, else something went horribly wrong
     BIO_free_all(bio);
-
 
     return decoded_data;
 }

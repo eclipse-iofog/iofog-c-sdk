@@ -18,7 +18,6 @@ iofog_http_client *new_iofog_http_client(const char *id, int ssl, const char *ho
     client->url_post_message = malloc(url_size);
     client->request_body_id = malloc(url_size);
 
-
     sprintf(client->url_base_rest, "%s://%s:%d", protocol_rest, host, port);
     sprintf(client->url_get_config, "%s%s", client->url_base_rest, URL_GET_CONFIG);
     sprintf(client->url_get_next_messages, "%s%s", client->url_base_rest, URL_GET_NEXT_MESSAGES);
@@ -39,6 +38,7 @@ void free_iofog_http_client(iofog_http_client *client) {
     free(client);
 }
 
+// user is responsible for calling json_object_put on config
 int _get_config(iofog_http_client *client, json_object **config) {
     json_object *response;
     int res_code = make_post_request(client->url_get_config, APPLICATION_JSON, client->request_body_id, &response);
@@ -59,6 +59,7 @@ int _post_message(iofog_http_client *client, io_message *message, post_message_r
     json_object *resp;
     char *message_str;
     io_message_to_json_string(message, &message_str);
+
     int rc = make_post_request(client->url_post_message, APPLICATION_JSON, message_str, &resp);
     if (rc != 0) {
         post_response->id = NULL;
@@ -66,7 +67,7 @@ int _post_message(iofog_http_client *client, io_message *message, post_message_r
     } else {
         const char *id = json_object_get_string(json_object_object_get(resp, ID));
         size_t id_len = get_len(id);
-        post_response->id = calloc(id_len, 1);
+        post_response->id = calloc(id_len + 1, 1);
         memcpy(post_response->id, id, id_len);
         post_response->timestamp = json_object_get_int64(json_object_object_get(resp, TIMESTAMP));
     }
