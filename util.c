@@ -11,9 +11,8 @@ int get_intBE(unsigned char *buf, int len) {
     int res = 0;
     int i;
     int shift = 0;
-    for (i = len - 1; i >= 0; i--) {
-        res += (int) buf[i] << shift;
-        shift += 8;
+    for (i = len - 1; i >= 0; i--, shift += 8) {
+        res |= (int) buf[i] << shift;
     }
     return res;
 }
@@ -22,9 +21,8 @@ long long get_longBE(unsigned char *buf, int len) {
     long long res = 0;
     int i;
     int shift = 0;
-    for (i = len - 1; i >= 0; i--) {
-        res += (int) buf[i] << shift;
-        shift += 8;
+    for (i = len - 1; i >= 0; i--, shift += 8) {
+        res |= (long long) buf[i] << shift;
     }
     return res;
 }
