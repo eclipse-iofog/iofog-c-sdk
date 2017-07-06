@@ -17,6 +17,16 @@ int get_intBE(unsigned char *buf, int len) {
     return res;
 }
 
+size_t get_sizeBE(unsigned char *buf, int len) {
+    size_t res = 0;
+    int i;
+    int shift = 0;
+    for (i = len - 1; i >= 0; i--, shift += 8) {
+        res |= (size_t) buf[i] << shift;
+    }
+    return res;
+}
+
 long long get_longBE(unsigned char *buf, int len) {
     long long res = 0;
     int i;
@@ -61,16 +71,6 @@ void put_longBE(long long num, unsigned char *dest, int len) {
     for (i = len - 1, shift = 0; i >= 0; i--, shift += 8) {
         dest[i] = (unsigned char) (num >> shift);
     }
-}
-
-size_t get_sizeBE(unsigned char *buf, int len) {
-    size_t res = 0;
-    int shift;
-    int i;
-    for (i = len - 1, shift = 0; i >= 0; i--, shift += 8) {
-        res += buf[i] >> 2 * shift;
-    }
-    return res;
 }
 
 size_t get_len(const char *p) {
@@ -167,6 +167,7 @@ void unpack_bytes_json(json_object *jobj, const char *key, char **dest) {
 }
 
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
+    printf("calllalal\n");
     if (userdata != NULL) {
         *((struct json_object **) userdata) = json_tokener_parse(ptr);
     }
